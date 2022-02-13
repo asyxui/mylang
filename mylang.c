@@ -2,6 +2,64 @@
 #include <stdio.h>
 #include <string.h>
 
+int MAXSIZE = 256;
+int stack[256] = {0};
+int top = -1;
+
+int isempty()
+{
+
+    if (top == -1)
+        return 1;
+    else
+        return 0;
+}
+
+int isfull()
+{
+
+    if (top == MAXSIZE)
+        return 1;
+    else
+        return 0;
+}
+
+int peek()
+{
+    return stack[top];
+}
+
+int pop()
+{
+    int data;
+
+    if (!isempty())
+    {
+        data = stack[top];
+        top = top - 1;
+        return data;
+    }
+    else
+    {
+        printf("Could not retrieve data, Stack is empty.\n");
+        return -1;
+    }
+}
+
+void push(int data)
+{
+
+    if (!isfull())
+    {
+        top = top + 1;
+        stack[top] = data;
+    }
+    else
+    {
+        printf("Could not insert data, Stack is full.\n");
+    }
+}
+
 int add(int a, int b)
 {
     return a + b;
@@ -62,35 +120,21 @@ int getRightDigits(char *command)
 void arithmetic_command(char *command)
 {
     char *i;
-    if (i = strchr(command, '+'))
+    if ((i = strchr(command, '+')))
     {
-        *i = '\0';
-        // TODO: Instead of printing, replace the command with the result.
-        printf("%d\n", add(*(i - getLeftDigits(i)) - '0', *(i + getRightDigits(i)) - '0'));
-
-        if (contains_arithmetic_operator(i + 1))
-            arithmetic_command(i + 1);
+        push(add(strtol(i - getLeftDigits(i), NULL, 10), strtol(i + getRightDigits(i), NULL, 10)));
     }
-    if (i = strchr(command, '-'))
+    if ((i = strchr(command, '-')))
     {
-        *i = '\0';
-        printf("%d\n", subtract(*(i - getLeftDigits(i)) - '0', *(i + getRightDigits(i)) - '0'));
-        if (contains_arithmetic_operator(i + 1))
-            arithmetic_command(i + 1);
+        push(subtract(strtol(i - getLeftDigits(i), NULL, 10), strtol(i + getRightDigits(i), NULL, 10)));
     }
-    if (i = strchr(command, '*'))
+    if ((i = strchr(command, '*')))
     {
-        *i = '\0';
-        printf("%d\n", multiply(*(i - getLeftDigits(i)) - '0', *(i + getRightDigits(i)) - '0'));
-        if (contains_arithmetic_operator(i + 1))
-            arithmetic_command(i + 1);
+        push(multiply(strtol(i - getLeftDigits(i), NULL, 10), strtol(i + getRightDigits(i), NULL, 10)));
     }
-    if (i = strchr(command, '/'))
+    if ((i = strchr(command, '/')))
     {
-        *i = '\0';
-        printf("%d\n", divide(*(i - getLeftDigits(i)) - '0', *(i + getRightDigits(i)) - '0'));
-        if (contains_arithmetic_operator(i + 1))
-            arithmetic_command(i + 1);
+        push(divide(strtol(i - getLeftDigits(i), NULL, 10), strtol(i + getRightDigits(i), NULL, 10)));
     }
 }
 
@@ -100,12 +144,16 @@ void interpret_command(char *command)
     {
         arithmetic_command(command);
     }
+    if (strstr(command, "printd"))
+    {
+        printf("%d\n", pop());
+    }
 }
 
 void read_file(char *file)
 {
     FILE *f = fopen(file, "r");
-    char *line;
+    char *line = (char *)malloc(128 * sizeof(char));
     size_t size;
     ;
     if (f == NULL)
